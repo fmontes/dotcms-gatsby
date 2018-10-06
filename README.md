@@ -1,3 +1,8 @@
+# DotCMS Gatbsy Site
+Built to create a Gatbsy Source Plugin for DotCMS.
+
+---------------------------
+
 <p align="center">
   <a href="https://next.gatsbyjs.org">
     <img alt="Gatsby" src="https://www.gatsbyjs.org/monogram.svg" width="60" />
