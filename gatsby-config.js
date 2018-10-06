@@ -23,8 +23,8 @@ module.exports = {
                 host: '48190c8c-42c4-46af-8d1a-0cd5db894797',
                 credentials: {
                     email: 'admin@dotcms.com',
-                    password: 'admin'
-                }
+                    password: 'admin',
+                },
             },
         },
     ],
