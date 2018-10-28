@@ -27,16 +27,16 @@ class DotCMSLibrary {
             })
     }
 
-    async getContentTypesVariables(credentials) {
+    async getContentTypesVariables() {
         const getUrl = () => {
             return `${this.getBaseUrl()}/api/v1/contenttype?per_page=100`
         }
 
         return fetch(getUrl(), {
             headers: {
-                DOTAUTH: Buffer.from(`${credentials.email}:${credentials.password}`).toString(
-                    'base64'
-                ),
+                DOTAUTH: Buffer.from(
+                    `${this.options.credentials.email}:${this.options.credentials.password}`
+                ).toString('base64'),
             },
         })
             .then(data => data.json())
@@ -44,14 +44,12 @@ class DotCMSLibrary {
     }
 
     async getData() {
-        const contentlets = await this.getContentTypesVariables(this.options.credentials).then(
-            variables => {
-                return variables.map(async variable => {
-                    const data = await this.getContentletsByContentType(variable)
-                    return data
-                })
-            }
-        )
+        const contentlets = await this.getContentTypesVariables().then(variables => {
+            return variables.map(async variable => {
+                const data = await this.getContentletsByContentType(variable)
+                return data
+            })
+        })
 
         return Promise.all(contentlets)
     }
