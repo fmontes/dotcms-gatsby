@@ -1,4 +1,4 @@
-const dotCMSApi = require('./fetch-dotcms');
+const dotCMSApi = require('./dotcms-api');
 
 exports.sourceNodes = ({ actions, createNodeId }, configOptions) => {
     const { createNode } = actions
@@ -11,7 +11,8 @@ exports.sourceNodes = ({ actions, createNodeId }, configOptions) => {
         const nodeId = createNodeId(`dotcms-${contentlet.contentType}-${contentlet.inode}`)
         const nodeContent = JSON.stringify(contentlet)
 
-        const nodeData = Object.assign({}, contentlet, {
+        const nodeData = {
+            ...contentlet,
             id: nodeId,
             parent: null,
             children: [],
@@ -20,7 +21,7 @@ exports.sourceNodes = ({ actions, createNodeId }, configOptions) => {
                 content: nodeContent,
                 contentDigest: JSON.stringify(contentlet),
             },
-        })
+        }
 
         return nodeData
     }
