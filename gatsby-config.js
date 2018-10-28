@@ -20,7 +20,11 @@ module.exports = {
         {
             resolve: 'gatsby-source-dotcms',
             options: {
-                host: '48190c8c-42c4-46af-8d1a-0cd5db894797',
+                host: {
+                    protocol: 'http',
+                    url: 'localhost:8080',
+                    identifier: '48190c8c-42c4-46af-8d1a-0cd5db894797'
+                },
                 credentials: {
                     email: 'admin@dotcms.com',
                     password: 'admin',

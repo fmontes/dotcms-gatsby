@@ -1,46 +1,66 @@
 const fetch = require('node-fetch')
 
-const getUrl = options =>
-    `http://localhost:8080/api/content/render/false/query/+contentType:${options.variable}%20+(conhost:${options.host}%20conhost:SYSTEM_HOST)%20+languageId:1%20+deleted:false%20+working:true/orderby/modDate%20desc`
+class DotCMSLibrary {
+    constructor(options) {
+        this.options = options
+    }
 
-const getData = async options => {
-    return fetch(getUrl(options))
-        .then(data => data.json())
-        .then(data => data.contentlets)
-        .then(contentlets => {
-            contentlets.forEach(contentlet => {
-                contentlet.contentType = options.variable
+    getBaseUrl() {
+        return `${this.options.host.protocol}://${this.options.host.url}`
+    }
+
+    getContentletsByContentType(contentType) {
+        const getUrl = () => {
+            return `${this.getBaseUrl()}/api/content/render/false/query/+contentType:${contentType}%20+(conhost:${
+                this.options.host.identifier
+            }%20conhost:SYSTEM_HOST)%20+languageId:1%20+deleted:false%20+working:true/orderby/modDate%20desc`
+        }
+
+        return fetch(getUrl())
+            .then(data => data.json())
+            .then(data => data.contentlets)
+            .then(contentlets => {
+                contentlets.forEach(contentlet => {
+                    contentlet.contentType = contentType
+                })
+                return contentlets
             })
-            return contentlets
+    }
+
+    async getContentTypesVariables(credentials) {
+        const getUrl = () => {
+            return `${this.getBaseUrl()}/api/v1/contenttype?per_page=100`
+        }
+
+        return fetch(getUrl(), {
+            headers: {
+                DOTAUTH: Buffer.from(`${credentials.email}:${credentials.password}`).toString(
+                    'base64'
+                ),
+            },
         })
+            .then(data => data.json())
+            .then(contentTypes => contentTypes.entity.map(contentType => contentType.variable))
+    }
+
+    async getData() {
+        const contentlets = await this.getContentTypesVariables(this.options.credentials).then(
+            variables => {
+                return variables.map(async variable => {
+                    const data = await this.getContentletsByContentType(variable)
+                    return data
+                })
+            }
+        )
+
+        return Promise.all(contentlets)
+    }
 }
 
-const getContentletsVariables = async (credentials) => {
-    return fetch('http://localhost:8080/api/v1/contenttype?per_page=100', {
-        headers: {
-            DOTAUTH: Buffer.from(`${credentials.email}:${credentials.password}`).toString('base64'),
-        },
-    })
-        .then(data => data.json())
-        .then(contentTypes => contentTypes.entity.map(e => e.variable))
-}
+exports.getContentlets = async configOptions => {
+    const dotCMSLibrary = new DotCMSLibrary(configOptions)
 
-const getcontentTypesContentlets = async (configOptions) => {
-    const contentlets = await getContentletsVariables(configOptions.credentials).then(variables => {
-        return variables.map(async variable => {
-            const data = await getData({
-                variable: variable,
-                host: configOptions.host
-            })
-            return data
-        })
-    })
-
-    return Promise.all(contentlets)
-}
-
-exports.getContentlets = async (configOptions) => {
-    return getcontentTypesContentlets(configOptions).then(contentTypesContentlets => {
+    return dotCMSLibrary.getData().then(contentTypesContentlets => {
         // Flatten nested array
         return [].concat.apply([], contentTypesContentlets)
     })
