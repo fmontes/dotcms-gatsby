@@ -1,6 +1,6 @@
 const fetch = require('node-fetch')
 
-class DotCMSLibrary {
+class DotCMSApi {
     constructor(options) {
         this.options = options
     }
@@ -56,9 +56,9 @@ class DotCMSLibrary {
 }
 
 exports.getContentlets = async configOptions => {
-    const dotCMSLibrary = new DotCMSLibrary(configOptions)
+    const dotCMSApi = new DotCMSApi(configOptions)
 
-    return dotCMSLibrary.getData().then(contentTypesContentlets => {
+    return dotCMSApi.getData().then(contentTypesContentlets => {
         // Flatten nested array
         return [].concat.apply([], contentTypesContentlets)
     })
