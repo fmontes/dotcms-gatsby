@@ -30,6 +30,6 @@ module.exports = {
                     password: 'admin',
                 },
             },
-        },
+        }
     ],
 }

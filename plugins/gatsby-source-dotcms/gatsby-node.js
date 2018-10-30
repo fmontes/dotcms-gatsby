@@ -26,11 +26,16 @@ exports.sourceNodes = ({ actions, createNodeId }, configOptions) => {
         return nodeData
     }
 
+    // Gatsby expects sourceNodes to return a promise
     return (
         dotCMSApi.getContentlets(configOptions)
             .then(contentlets => {
+                // Process the response data into a node
                 contentlets.forEach((contentlet) => {
+                    // Process each contentlet data to match the structure of a Gatsby node
                     const nodeData = processContentlet(contentlet)
+
+                    // Use Gatsby's createNode helper to create a node from the node data
                     createNode(nodeData)
                 })
             })
